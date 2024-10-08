@@ -1,0 +1,59 @@
+#include <Servo.h>
+
+Servo horizontalServo;  // For east-west movement
+Servo verticalServo;    // For up-down movement
+
+int ldrN = A0;  // LDR North
+int ldrS = A1;  // LDR South
+int ldrE = A2;  // LDR East
+int ldrW = A3;  // LDR West
+
+int horizontalPos = 90;  // Initial horizontal position
+int verticalPos = 90;    // Initial vertical position
+
+void setup() {
+  horizontalServo.attach(9);  // Attach servos to pins
+  verticalServo.attach(10);
+
+  horizontalServo.write(horizontalPos);
+  verticalServo.write(verticalPos);
+
+  Serial.begin(9600);  // Initialize serial for debugging
+}
+
+void loop() {
+  int north = analogRead(ldrN);
+  int south = analogRead(ldrS);
+  int east = analogRead(ldrE);
+  int west = analogRead(ldrW);
+
+  // Horizontal movement (east-west)
+  if (east > west + 50) {
+    horizontalPos += 1;  // Move right
+  } else if (west > east + 50) {
+    horizontalPos -= 1;  // Move left
+  }
+  
+  // Vertical movement (up-down)
+  if (north > south + 50) {
+    verticalPos -= 1;  // Move up
+  } else if (south > north + 50) {
+    verticalPos += 1;  // Move down
+  }
+
+  // Ensure servo limits
+  horizontalPos = constrain(horizontalPos, 0, 180);
+  verticalPos = constrain(verticalPos, 0, 180);
+
+  // Move the servos
+  horizontalServo.write(horizontalPos);
+  verticalServo.write(verticalPos);
+
+  delay(500);  // Adjust delay as necessary for smooth movement
+
+  // Debugging info
+  Serial.print("N: "); Serial.print(north);
+  Serial.print(" S: "); Serial.print(south);
+  Serial.print(" E: "); Serial.print(east);
+  Serial.print(" W: "); Serial.println(west);
+}
